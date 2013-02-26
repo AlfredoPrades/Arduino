@@ -1,4 +1,4 @@
 Arduino
 =======
 
-Some arduino project i'm working on
+Some arduino projects i'm working on
