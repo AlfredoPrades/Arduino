@@ -1,0 +1,95 @@
+html {
+  font-family: Helvetica;
+  display: inline-block;
+  margin: 0px auto;
+  text-align: center;
+  font-size: 1.3rem;
+}
+h1{
+  color: #0F3376;
+  padding: 1vh;
+}
+p{
+  font-size: 1.5rem;
+}
+.button {
+  display: inline-block;
+  background-color: #008CBA;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding: 16px 40px;
+  text-decoration: none;
+  font-size: 30px;
+  margin: 2px;
+  cursor: pointer;
+}
+.button2 {
+  background-color: #f44336;
+}
+
+#top {
+  display:block;
+}
+
+#status {
+  display:block;
+  float:right;
+  width:68%;
+  border: 2px solid grey;
+}
+
+.statusItem {
+  border-bottom: 2px solid blue
+}
+
+.info {
+  width:49%;
+  display: inline-block;
+  border-bottom: 1px solid grey
+
+}
+
+#webSocketDisplay {
+  background: #d4d3ff;
+}
+
+#gps {
+  display: block;
+  border: 1px solid red;
+  padding:0;
+}
+
+.gps {
+  width: 30%;
+  margin : 0.3%;
+  display: block;
+  float:left;
+}
+
+#selfGPS {
+  background: #FFFFAA;
+}
+
+#remoteGPS {
+  background: #AAFFFF;
+}
+
+#gpsCalc {
+  background: #AAFFAA;
+}
+#myCanvas {
+  width:30%;
+  
+  border:1px solid #d3d3d3;
+  background:#ddddff;
+  display: block;
+}
+
+.symbol {
+  font-size: 3em;
+  display: inline-block;
+  width: 30%;  
+}
+
+

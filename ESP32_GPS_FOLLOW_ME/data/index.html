@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>ESP32 Web Server</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta charset="UTF-8"> 
+   <link rel="icon" href="data:,">
+   <link rel="stylesheet" type="text/css" href="style.css">
+   <script type="text/javascript">
+      var serverIP = top.location.hostname;
+      var ws = new WebSocket("ws://"+ serverIP +"/ws");
+  
+      ws.onopen = function () {
+         document.getElementById("webSocketStatusValue").innerHTML = "CONNECTED";
+
+      };
+
+      ws.onmessage = function (evt) {
+         events = JSON.parse(evt.data);
+         for (var i = events.length; i--; ) {
+            processEvent(events[i]);
+         }
+         
+      };
+
+      ws.onclose = function() {
+         document.getElementById("webSocketStatusValue").innerHTML = "Desconectado";
+      }
+
+      function processEvent(event) {
+         if (event) {
+            if (event.type == "compass") {
+               realAngle = Number(event.data);   
+               document.getElementById("compassData").innerHTML = realAngle;      
+            }
+            else if (event.type == "selfgps") {
+               document.getElementById("selfLat").innerHTML = event.lat;
+               document.getElementById("selfLon").innerHTML = event.lon;
+               
+            }
+            else if (event.type == "remotegps") {
+               document.getElementById("remoteLat").innerHTML = event.lat;
+               document.getElementById("remoteLon").innerHTML = event.lon;
+            }
+            else if (event.type == "rumbo") {
+               targetAngle = event.rumbo;
+               document.getElementById("rumbo").innerHTML = event.rumbo;
+               document.getElementById("dist").innerHTML = event.dist;
+            }
+            else if (event.type == "debug") {
+               document.getElementById("debug").innerHTML = event.data;
+            }
+            else if (event.type == "turn") {
+               showArrow(event.side);
+            }
+            else {
+               txt = "??";
+               if (event.data) {
+                  txt +=  event.data 
+               }
+               document.getElementById("debug").innerHTML = txt ;
+            }
+
+
+         }
+      }
+      setTimeout(() => {
+         showArrow("left");
+      }, 200);
+      setTimeout(() => {
+         showArrow("forward");
+      }, 400);
+      setTimeout(() => {
+         showArrow("right");
+      }, 600);
+      setTimeout(() => {
+         showArrow("kk");
+      }, 800);
+
+      function showArrow(idElem) {
+         document.getElementById("left").style.visibility  = "hidden";
+         document.getElementById("forward").style.visibility = "hidden";
+         document.getElementById("right").style.visibility = "hidden";
+         document.getElementById(idElem).style.visibility = "visible";   
+
+      }
+
+      var c ;
+      var ctx;
+      var realAngle = 0;
+      var targetAngle = 180;
+      var centerX = 0;
+      var centerY = 0;
+      var len = 0;
+      setInterval("draw(realAngle,targetAngle);", 50);
+
+
+      function draw(angle,targetAngle) {
+         if ( !c ) {
+            initCanvas();
+            return;
+         }
+         ctx.clearRect(0, 0, c.width, c.height);
+         drawCompass(angle, "black");
+         drawCompass(targetAngle, "green");
+
+         ctx.strokeStyle = "black";
+         ctx.moveTo(centerX, centerY);
+         ctx.beginPath();
+         ctx.lineWidth = 10;
+         ctx.arc(centerX, centerY, centerX, 0, 2 * Math.PI);
+         ctx.stroke();
+         ctx.closePath()
+
+         if (angle >= 360) { angle = 0; }
+      }
+
+
+      function initCanvas()  {
+         c = document.getElementById("myCanvas");
+         if (!c) return;
+         ctx = c.getContext("2d");
+         centerX = c.width / 2;
+         centerY = c.height / 2;
+         len = centerX - 30;
+      }
+
+      function drawCompass(ang, color) {
+         ctx.strokeStyle = color;
+         
+         if (ang < 90) { ang += 360; }
+
+         var theta = (ang - 90) * Math.PI / 180;
+         var dx = len * Math.cos(theta);
+         var dy = len * Math.sin(theta);
+
+
+         
+         ctx.beginPath();
+         ctx.moveTo(centerX, centerY);
+         ctx.lineTo(dx + centerX, dy + centerY);
+         ctx.lineWidth = 10;
+         ctx.stroke();
+         ctx.closePath();
+         
+      }
+
+
+   </script>
+</head>
+
+<body>
+   <div id ="top">
+   <div id="status">
+      <div class="statusItem" id="webSocketStatus">
+            <div class="info">  Websocket Status</div>
+            <div class="info" id="webSocketStatusValue">WS NO conectado</div>
+      </div>
+      <div class="statusItem">
+            <div class="info">Last event</div>
+            <div class="info" id="webSocketDisplay">Aun no </div>
+      </div>
+      <div class="statusItem">
+            <div class="info">REMOTE GPS</div>
+            <div class="info" >Not connected</div>
+      </div>
+      <div class="statusItem">
+            <div class="info">LOCAL GPS</div>
+            <div class="info" >Not connected</div>
+      </div>
+      <div class="statusItem">
+            <div class="info">COMPASS </div>
+            <div class="info" id="compassData" >Not connected</div>
+      </div>
+      <div class="statusItem">
+         <div class="info">debug </div>
+         <div class="info" id="debugData" >Not connected</div>
+   </div>
+
+
+   </div>
+
+</div>
+<!--    <p>GPIO state: <strong> %STATE%</strong></p>
+   <p><a href="/on"><button class="button">ON</button></a></p>
+   <p><a href="/off"><button class="button button2">OFF</button></a></p>
+ -->   
+ 
+ <canvas id="myCanvas" height="300" ></canvas>
+   <div id="gps">
+      <div id="selfGPS"  class="gps">
+         <h2>Self GPS</h2>
+         <p id="selfLat"> no data </p>
+         <p id="selfLon"> no data </p>
+      </div>
+      <div id="gpsCalc" class="gps">
+            <div id="left" class="symbol">◄</div>
+            <div id="forward" class="symbol">▲</div>
+            <div id="right" class="symbol">►</div>
+            <p id="dist"> ??</p>
+            <p id="rumbo">?? </p>
+      </div>
+      <div id="remoteGPS" class="gps">
+            <h2>Remote GPS</h2>
+            <p id="remoteLat" >no data </p>
+            <p id="remoteLon" >no data </p>
+      </div>
+   </div>
+</body>
+
+</html>
